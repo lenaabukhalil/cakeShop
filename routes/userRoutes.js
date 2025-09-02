@@ -1,26 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const userController = require('../controllers/userController');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 
-// Register user
-router.post('/register', async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// راوت التسجيل بدون حماية
+router.post('/register', userController.register);
 
-// Get all users
-router.get('/', async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// راوت تسجيل الدخول بدون حماية
+router.post('/login', userController.login);
+
+// راوت تسجيل الدخول بـ Google بدون حماية
+router.post('/google-login', userController.googleLogin);
+
+// راوتات محمية بالميدلوير
+router.get('/profile/:id', isAuthenticated, userController.getProfile);
+router.put('/profile/:id', isAuthenticated, userController.updateProfile);
+router.post('/favorites/:cakeId', isAuthenticated, userController.addToFavorites);
+router.delete('/favorites/:cakeId', isAuthenticated, userController.removeFromFavorites);
+router.get('/favorites', isAuthenticated, userController.getFavorites);
+
+// راوت التحقق من التوكن
+router.get('/verify-token', userController.verifyToken);
 
 module.exports = router;

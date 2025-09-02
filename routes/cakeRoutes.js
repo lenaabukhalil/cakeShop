@@ -1,57 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const Cake = require('../models/Cake');
+const cakeController = require('../controllers/cakeController');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 
-// Create cake
-router.post('/', async (req, res) => {
-  try {
-    const cake = new Cake(req.body);
-    await cake.save();
-    res.status(201).json(cake);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// Create a new cake
+router.post('/', cakeController.createCake);
 
 // Get all cakes
-router.get('/', async (req, res) => {
-  try {
-    const cakes = await Cake.find();
-    res.json(cakes);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+router.get('/', cakeController.getAllCakes);
 
-// Get single cake
-router.get('/:id', async (req, res) => {
-  try {
-    const cake = await Cake.findById(req.params.id);
-    if (!cake) return res.status(404).json({ message: 'Cake not found' });
-    res.json(cake);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// Get a single cake by ID
+router.get('/:id', cakeController.getCakeById);
 
-// Update cake
-router.put('/:id', async (req, res) => {
-  try {
-    const cake = await Cake.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(cake);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+// Update a cake
+router.put('/:id', cakeController.updateCake);
 
-// Delete cake
-router.delete('/:id', async (req, res) => {
-  try {
-    await Cake.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Cake deleted' });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// Delete a cake
+router.delete('/:id', cakeController.deleteCake);
+
+// Search cakes with filters
+router.get('/search', cakeController.searchCakes);
+
+// Rate a cake
+router.post('/:id/rate', isAuthenticated, cakeController.rateCake);
 
 module.exports = router;
