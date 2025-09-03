@@ -17,7 +17,6 @@ RUN npm i
 COPY --chown=node:node . .
 
 # المنفذ
-EXPOSE 3000
-
+EXPOSE 5000
 # تشغيل التطبيق عبر npm start (اللي هو "node server.js")
 CMD ["npm", "start"]
